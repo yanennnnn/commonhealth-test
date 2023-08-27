@@ -1,6 +1,5 @@
 {
   "name": "commonhealth-test",
-  "homepage": "https://yanennnnn.github.io/commonhealth-test/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "deploy": "vite build && gh-pages -d dist"
   },
   "dependencies": {
     "gh-pages": "^6.0.0",

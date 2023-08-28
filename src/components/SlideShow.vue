@@ -1,14 +1,13 @@
 <script setup>
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { reactive, ref, nextTick  } from 'vue'
+import { reactive, ref, onMounted  } from 'vue'
+import axios from 'axios';
 import 'swiper/css';
 
 import 'swiper/css/pagination';
-import "swiper/css/free-mode"
 import 'swiper/css/effect-fade';
 import "swiper/css/navigation"
-import "swiper/css/thumbs"
-import { Pagination, FreeMode, Navigation, Thumbs, EffectCards, EffectFade  } from 'swiper/modules';
+import { Pagination, Navigation, EffectCards, EffectFade  } from 'swiper/modules';
 
 const modules = [Pagination, EffectCards, Navigation, EffectFade]
 let thumbsSwiper = ref(null);
@@ -19,11 +18,7 @@ const pagination = {
     return `<span class="${className}"></span>`;
   },
 }
-const setThumbsSwiper = (swiper) => {
-  console.log(swiper)
-  thumbsSwiper = swiper;
-}
-const data = reactive([
+const fakeData = reactive([
   {
     id:111,
     title: '疫情期間，癌症化療病人尿不出來又怕掛急診染疫，怎麼辦？',
@@ -52,18 +47,23 @@ const data = reactive([
     img: 'https://picsum.photos/id/555/768/432',
     category: ''
   },
-  {
-    id:555,
-    title: '喝大量蔬果汁有助排毒抗癌？怎麼把配方營養品變好喝？營養補充7QA全解析？',
-    tags: ['不分癌','常見醫療問題','醫生內心話'],
-    img: 'https://picsum.photos/id/50/768/432',
-    category: ''
-  },
 ])
+
+const news = ref([])
 
 const imgSwiper = ref()
 
 const currentSwiperIndex = ref(0)
+
+const tryToFetchNewsList = async () => {
+  await axios.get('https://newsapi.org/v2/top-headlines/sources?apiKey=8a430485fb2b4878a978a0ddb84384cd&country=ca')
+  .then(({ data }) => {
+    news.value = data.sources
+  }).catch((e) => {
+    console.log(e)
+  }) 
+}
+tryToFetchNewsList()
 
 </script>
 <template>
@@ -73,20 +73,20 @@ const currentSwiperIndex = ref(0)
         <div
           class="contentSwiper"
         >
-          <div v-for="(content,index) in data" :key="content.id" v-show="index === currentSwiperIndex">
+          <div v-for="(content,index) in news" :key="index" v-show="index === currentSwiperIndex">
             <div class="flex flex-wrap">
               <div v-if="content.category" class="bg-[#22222299] text-white px-[12px] py-[2px] rounded-[12px] text-[14px] mr-2 mb-2 shrink-0">
                 <img src="@/assets/video.svg" alt="" class="inline mr-2 w-[10px]">{{ content.category }}
               </div>
-              <span v-for="(tag, index) in content.tags" :key="index" class="text-tertiary mr-[12px] mb-2 self-center">
+              <!-- <span v-for="(tag, index) in content.tags" :key="index" class="text-tertiary mr-[12px] mb-2 self-center">
                 # {{ tag }}
-              </span>
+              </span> -->
             </div>
             <div>
-              <h3 class="text-[28px] md:text-[32px] font-bold ellipsis"> {{ content.title }}</h3>
+              <h3 class="text-[28px] md:text-[32px] font-bold ellipsis"> {{ content.description }}</h3>
             </div>
             <div class="text-center mt-[48px] md:mt-[96px]">
-              <a href="#" class="w-[171px] h-[51px] inline-block  mx-auto border border-solid border-secondary rounded-[46px] py-[12px] px-[16px] text-secondary hover:bg-secondary hover:text-white">
+              <a :href="content.url" target="_blank" class="w-[171px] h-[51px] inline-block  mx-auto border border-solid border-secondary rounded-[46px] py-[12px] px-[16px] text-secondary hover:bg-secondary hover:text-white">
                 立即閱讀
               </a>
             </div>
@@ -111,7 +111,7 @@ const currentSwiperIndex = ref(0)
             }"
             class="imgSwiper"
           >
-            <swiper-slide v-for="(item) in data" :key="item.id" :style="{backgroundImage:`url(${item.img})` }">
+            <swiper-slide v-for="(item) in fakeData" :key="item.id" :style="{backgroundImage:`url(${item.img})` }">
               <!-- <img :src="item.imgags" alt=""> -->
             </swiper-slide>
           </swiper>

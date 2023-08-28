@@ -40,41 +40,49 @@ let prevScrollY = ref(0);
 let isScrolling = false;
 let currentScroll = ref('up');
 let isExpandSearchBar = ref(false)
+const emit = defineEmits(['openMenu'])
 const openMenu = () => {
   isOpenMenu.value= !isOpenMenu.value 
-  const main = document.querySelector('.main');
-  main.classList.toggle('overflow-hidden');
-  main.classList.toggle('h-screen');
+  emit('openMenu', isOpenMenu.value)
   currentScroll.value = 'up'
 }
 const resizeWindow = () =>{
   windowWidth.value = window.innerWidth;
 }
-const doScroll = (event) => {
-  if (isScrolling) return; 
 
-  let scrollTop = 0;
-
-  if (typeof window.pageYOffset !== 'undefined') {
-    scrollTop = window.pageYOffset;
-  } else if (typeof document.compatMode !== 'undefined' && document.compatMode !== 'BackCompat') {
-    scrollTop = document.documentElement.scrollTop;
-  } else if (typeof document.body !== 'undefined') {
-    scrollTop = document.body.scrollTop;
-  }
-  
-  if (scrollTop > prevScrollY.value) {
-    currentScroll.value = 'down'
-  } else if (scrollTop < prevScrollY.value) {
-    currentScroll.value = 'up'
-  }
-
-  prevScrollY.value = scrollTop;
-  isScrolling = true;
-  setTimeout(() => {
-    isScrolling = false;
-  }, 200);
+const debounce = (func, delay = 500) => {
+    let timer;
+    return function () {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func();
+        }, delay);
+    };
 };
+
+
+const updateScrollDirection = () => {
+    let scrollTop = 0;
+  
+    if (typeof window.pageYOffset !== 'undefined') {
+        scrollTop = window.pageYOffset;
+    } else if (typeof document.compatMode !== 'undefined' && document.compatMode !== 'BackCompat') {
+        scrollTop = document.documentElement.scrollTop;
+    } else if (typeof document.body !== 'undefined') {
+        scrollTop = document.body.scrollTop;
+    }
+    
+    if (scrollTop > prevScrollY.value) {
+        currentScroll.value = 'down';
+    } else if (scrollTop < prevScrollY.value) {
+        currentScroll.value = 'up';
+    }
+
+    prevScrollY.value = scrollTop;
+};
+const doScroll = debounce(updateScrollDirection, 200);
+
+
 
 
 const expandSearchBar = () => {
@@ -86,12 +94,12 @@ const unExpandSearchBar = () => {
 
 onMounted(() => {
   window.addEventListener('resize', resizeWindow);
-  window.addEventListener('scroll', doScroll)
+  window.addEventListener('scroll', doScroll);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', resizeWindow);
-  window.removeEventListener('scroll', doScroll)
+  window.removeEventListener('scroll', doScroll);
 }); 
 
 </script>

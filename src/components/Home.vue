@@ -8,6 +8,10 @@ defineProps({
 })
 
 const count = ref(0)
+const isOpenMenu = ref(false)
+const openMenu = (value) => {
+  isOpenMenu.value = value
+}
 </script>
 
 <template>
@@ -15,8 +19,8 @@ const count = ref(0)
     <img src="https://fakeimg.pl/750x250/eeeeee/" class="max-w-full md:inline hidden">
     <img src="https://fakeimg.pl/300x250/eeeeee/" class="max-w-full md:hidden">
   </section>
-  <div class="main">
-    <Header/>
+  <div class="main" :class="isOpenMenu ? 'overflow-hidden h-screen' : ''">
+    <Header @openMenu="openMenu"/>
     <SlideShow/>
   </div>
 </template>
